@@ -1,8 +1,9 @@
 import { StatisticsCollector } from "domain/interactions/statistics_collector";
-import SessionStatistics from "domain/statistics/session_statistics";
+import SessionStatistics, { KeyStrokeTable, WordTable } from "domain/statistics/session_statistics";
 import Line from "domain/typewriter/line";
 import Word from "domain/typewriter/word";
 import { Signal } from "typed-signals";
+import shuffleArray from "app/arrayHelpers/shuffleArray";
 
 import * as wordlist from '../data/english-words-10.json';
 
@@ -21,6 +22,7 @@ export default class TypingController {
 
         let words: Word[] = [];
         commonEnglishWords.forEach((word: string) => words.push(new Word(word)));
+        shuffleArray(words);
 
         this.line = new Line(words, 0, 0);
         this.sessionStatistics = new SessionStatistics();
@@ -35,8 +37,6 @@ export default class TypingController {
         const strokeTime = nextTimeInMs - this.lastKeyStrokeTimeInMs;
 
         this.line.handleKeyStroke(keyStroke, strokeTime);
-
-        console.log(strokeTime);
 
         this.lastKeyStrokeTimeInMs = nextTimeInMs;
 
@@ -53,6 +53,14 @@ export default class TypingController {
             this.sessionStatistics.getRightKeyStrokes(),
             this.sessionStatistics.getWrongKeyStrokes()
         ];
+    }
+
+    getCharacterStatistics() : KeyStrokeTable {
+        return this.sessionStatistics.getKeyStrokeTable();
+    }
+
+    getWordStatistics() : WordTable {
+        return this.sessionStatistics.getWordTable();
     }
 
     lineChanged = new Signal<() => void>();

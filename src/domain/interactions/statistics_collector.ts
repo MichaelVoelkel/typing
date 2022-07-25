@@ -6,7 +6,9 @@ import Line from "../typewriter/line";
 
 const Events = {
     rightToken: slot<{token: string, timeInMs: number}>(),
-    wrongToken: slot<{expected: string, actual: string, timeInMs: number}>()
+    wrongToken: slot<{expected: string, actual: string, timeInMs: number}>(),
+    rightWord: slot<{word: string, timeInMs: number}>(),
+    wrongWord: slot<{word: string, timeInMs: number}>()
 };
 
 export class StatisticsCollector {
@@ -16,17 +18,31 @@ export class StatisticsCollector {
         this.eventBus = createEventBus({events: Events});
         this.handleRightToken();
         this.handleWrongToken();
+        this.handleRightWord();
+        this.handleWrongWord();
     }
 
     private handleRightToken(): void {
-        this.eventBus.rightToken.on(() => {
-            this.sessionStatistics.addRightKeyStroke();
+        this.eventBus.rightToken.on((obj: {token: string, timeInMs: number}) => {
+            this.sessionStatistics.addRightKeyStroke(obj.token, obj.timeInMs);
         });
     }
 
     private handleWrongToken(): void {
-        this.eventBus.wrongToken.on(() => {
-            this.sessionStatistics.addWrongKeyStroke();
+        this.eventBus.wrongToken.on((obj: {expected: string, actual: string, timeInMs: number}) => {
+            this.sessionStatistics.addWrongKeyStroke(obj.expected, obj.timeInMs);
+        });
+    }
+
+    private handleRightWord(): void {
+        this.eventBus.rightWord.on((obj: {word: string, timeInMs: number}) => {
+            this.sessionStatistics.addRightWord(obj.word, obj.timeInMs);
+        });
+    }
+
+    private handleWrongWord(): void {
+        this.eventBus.wrongWord.on((obj: {word: string, timeInMs: number}) => {
+            this.sessionStatistics.addWrongWord(obj.word, obj.timeInMs);
         });
     }
 
@@ -50,6 +66,19 @@ class TypeWriterEventEmitter implements EventEmitter {
     rightToken(actual: string, timeInMs: number): void {
         this.eventBus.rightToken({
             token: actual,
+            timeInMs: timeInMs
+        });
+    }
+
+    rightWord(word: string, timeInMs: number): void {
+        this.eventBus.rightWord({
+            word: word,
+            timeInMs: timeInMs
+        });
+    }
+    wrongWord(word: string, timeInMs: number): void {
+        this.eventBus.wrongWord({
+            word: word,
             timeInMs: timeInMs
         });
     }

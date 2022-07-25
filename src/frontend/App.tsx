@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { stringify } from 'ts-jest';
 import TypingController from '../app/typing_controller'
 import parse from 'html-react-parser'
+import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/statistics/session_statistics';
 
 export default function App() {
     const [typingController, setTypingController] = useState<TypingController>(new TypingController());
@@ -9,7 +10,7 @@ export default function App() {
 
     const fixLastWhitespace = (text: string) => {
         if(text[text.length - 1] == ' ') {
-            return '&nbsp;' + text;
+            return "&nbsp;" + text;
         }
         return text;
     };
@@ -36,6 +37,8 @@ export default function App() {
             const [newLineString, newPosition] = typingController?.getLineStringAndPosition();
             updateLineTextObject(newLineString, newPosition);
             setStrokes(typingController.getRightWrongStatistics());
+            setKeyStrokeTable(typingController.getCharacterStatistics());
+            setWordTable(typingController.getWordStatistics());
         });
     }, [setTypingController]);
 
@@ -70,6 +73,8 @@ export default function App() {
     });
 
     const [strokes, setStrokes] = useState([0,0]);
+    const [keyStrokeTable, setKeyStrokeTable] = useState<KeyStrokeTable>([]);
+    const [wordTable, setWordTable] = useState<WordTable>([]);
 
     return <React.Fragment>{typingController != undefined ? 
         (<div className="bg-zinc-800 h-full text-zinc-400" style={{whiteSpace: "pre", overflow: "hidden", textOverflow: "ellipsis"}}>
@@ -80,6 +85,18 @@ export default function App() {
             <br/>
             <span>Wrong strokes: {strokes[1]}</span>
             </div>
+            <span>{wordTable.length}</span>
+            <table>
+                <tbody>
+                { wordTable.map((row: WordRow) => {
+                    return <tr key={row.word}>
+                            <td>{row.word}</td>
+                            <td>{row.precision}</td>
+                            <td>{row.averageTime}</td>
+                        </tr>;})
+                }
+                </tbody>
+            </table>
         </div>)
         :
             <div>Loading</div>

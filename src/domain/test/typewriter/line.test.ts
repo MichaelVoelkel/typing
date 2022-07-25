@@ -21,6 +21,7 @@ function multiStroke(line: Line, strokes: string) {
 }
 
 class EventEmitterMock implements EventEmitter {
+    
     public wrongTokenCalls: number = 0;
     public rightTokenCalls: number = 0;
 
@@ -30,6 +31,13 @@ class EventEmitterMock implements EventEmitter {
 
     rightToken(_actual: string): void {
         ++this.rightTokenCalls;
+    }
+
+    rightWord(word: string, timeInMs: number): void {
+        // TBD
+    }
+    wrongWord(word: string, timeInMs: number): void {
+        // TBD
     }
 }
 

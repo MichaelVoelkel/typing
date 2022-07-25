@@ -5,6 +5,8 @@ import Word from "./word";
 // that might repeat
 export default class Line {
     private eventEmitter?: EventEmitter;
+    private cumulativeStrokeTimesInWordInMs: number = 0;
+    private errorsInWordSoFar: boolean = false;
 
     constructor(
         private words: Word[],
@@ -17,8 +19,6 @@ export default class Line {
         let lineString: string = "";
         const spaceSize = 1;
 
-        console.log("MV: current " + this.currentWordIdx);
-
         for(let wordIdx = 0; wordIdx < this.words.length; ++wordIdx) {
             lineString += this.words[wordIdx].string() + " ";
 
@@ -29,8 +29,6 @@ export default class Line {
             }
         }
 
-        console.log("MV: pos " + cursorPosition);
-
         return [lineString, cursorPosition];
     }
 
@@ -39,6 +37,8 @@ export default class Line {
     }
 
     handleKeyStroke(typedCharacter: string, timeInMs: number): void {
+        this.cumulativeStrokeTimesInWordInMs += timeInMs;
+
         let correctCharacter: string;
         if(this.atEndOfWord()) {
             correctCharacter = ' ';
@@ -47,9 +47,10 @@ export default class Line {
         }
         
         if (typedCharacter === correctCharacter) {
-            this.proceedCursor();
+            this.proceedCursorAndPotentiallyWord();
             this.eventEmitter?.rightToken(correctCharacter, timeInMs);
         } else {
+            this.errorsInWordSoFar = true;
             this.eventEmitter?.wrongToken(correctCharacter, typedCharacter, timeInMs);
         }
     }
@@ -58,13 +59,23 @@ export default class Line {
         return this.currentPositionInWordIdx == this.words[this.currentWordIdx].length();
     }
 
-    proceedCursor(): void {
+    proceedCursorAndPotentiallyWord(): void {
         ++this.currentPositionInWordIdx;
 
         // position at end of word means space is needed
         if(this.currentPositionInWordIdx > this.words[this.currentWordIdx].length()) {
+            
+
+            if(this.errorsInWordSoFar) {
+                this.eventEmitter?.wrongWord(this.words[this.currentWordIdx].string(), this.cumulativeStrokeTimesInWordInMs);
+            } else {
+                this.eventEmitter?.rightWord(this.words[this.currentWordIdx].string(), this.cumulativeStrokeTimesInWordInMs);
+            }
+
             this.currentPositionInWordIdx = 0;
             ++this.currentWordIdx;
+            this.cumulativeStrokeTimesInWordInMs = 0;
+            this.errorsInWordSoFar = false;
         }
     }
 }
