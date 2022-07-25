@@ -1,4 +1,4 @@
 export default interface EventEmitter {
-    wrongToken(expected: string, actual: string, timeInUs: number): void;
-    rightToken(actual: string, timeInUs: number): void;
+    wrongToken(expected: string, actual: string, timeInMs: number): void;
+    rightToken(actual: string, timeInMs: number): void;
 }

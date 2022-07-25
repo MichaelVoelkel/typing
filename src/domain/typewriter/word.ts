@@ -6,6 +6,10 @@ export default class Word {
         return this.word[position];
     }
 
+    public string(): string {
+        return this.word;
+    }
+    
     public length(): number {
         return this.word.length;
     }

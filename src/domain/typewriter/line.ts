@@ -12,25 +12,57 @@ export default class Line {
         private currentPositionInWordIdx: number) {
     }
 
+    getLineStringAndCursorPosition(): [lineString: string, cursorPosition: number] {
+        let cursorPosition = 0;
+        let lineString: string = "";
+        const spaceSize = 1;
+
+        console.log("MV: current " + this.currentWordIdx);
+
+        for(let wordIdx = 0; wordIdx < this.words.length; ++wordIdx) {
+            lineString += this.words[wordIdx].string() + " ";
+
+            if(wordIdx < this.currentWordIdx) {
+                cursorPosition += this.words[wordIdx].length() + spaceSize;
+            } else if(wordIdx == this.currentWordIdx) {
+                cursorPosition += this.currentPositionInWordIdx;
+            }
+        }
+
+        console.log("MV: pos " + cursorPosition);
+
+        return [lineString, cursorPosition];
+    }
+
     setEventEmitter(eventEmitter: EventEmitter): void {
         this.eventEmitter = eventEmitter;
     }
 
-    handleKeyStroke(typedCharacter: string, timeInUs: number): void {
-        const correctCharacter = this.words[this.currentWordIdx].characterAt(this.currentPositionInWordIdx);
-
+    handleKeyStroke(typedCharacter: string, timeInMs: number): void {
+        let correctCharacter: string;
+        if(this.atEndOfWord()) {
+            correctCharacter = ' ';
+        } else {
+            correctCharacter = this.words[this.currentWordIdx].characterAt(this.currentPositionInWordIdx);
+        }
+        
         if (typedCharacter === correctCharacter) {
             this.proceedCursor();
-            this.eventEmitter?.rightToken(correctCharacter, timeInUs);
+            this.eventEmitter?.rightToken(correctCharacter, timeInMs);
         } else {
-            this.eventEmitter?.wrongToken(correctCharacter, typedCharacter, timeInUs);
+            this.eventEmitter?.wrongToken(correctCharacter, typedCharacter, timeInMs);
         }
+    }
+
+    atEndOfWord(): boolean {
+        return this.currentPositionInWordIdx == this.words[this.currentWordIdx].length();
     }
 
     proceedCursor(): void {
         ++this.currentPositionInWordIdx;
 
-        if(this.currentPositionInWordIdx >= this.words[this.currentWordIdx].length()) {
+        // position at end of word means space is needed
+        if(this.currentPositionInWordIdx > this.words[this.currentWordIdx].length()) {
             this.currentPositionInWordIdx = 0;
             ++this.currentWordIdx;
         }

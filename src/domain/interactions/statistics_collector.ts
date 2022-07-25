@@ -5,8 +5,8 @@ import EventEmitter from "../typewriter/event_emitter";
 import Line from "../typewriter/line";
 
 const Events = {
-    rightToken: slot<{token: string, timeInUs: number}>(),
-    wrongToken: slot<{expected: string, actual: string, timeInUs: number}>()
+    rightToken: slot<{token: string, timeInMs: number}>(),
+    wrongToken: slot<{expected: string, actual: string, timeInMs: number}>()
 };
 
 export class StatisticsCollector {
@@ -39,18 +39,18 @@ class TypeWriterEventEmitter implements EventEmitter {
     constructor(private line: Line, private eventBus: typeof Events) {
     }
 
-    wrongToken(expected: string, actual: string, timeInUs: number): void {
+    wrongToken(expected: string, actual: string, timeInMs: number): void {
         this.eventBus.wrongToken({
             expected: expected,
             actual: actual,
-            timeInUs: timeInUs
+            timeInMs: timeInMs
         });
     }
 
-    rightToken(actual: string, timeInUs: number): void {
+    rightToken(actual: string, timeInMs: number): void {
         this.eventBus.rightToken({
             token: actual,
-            timeInUs: timeInUs
+            timeInMs: timeInMs
         });
     }
 }

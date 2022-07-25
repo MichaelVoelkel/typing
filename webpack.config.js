@@ -2,6 +2,8 @@ const prod = process.env.NODE_ENV === 'production';
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   mode: prod ? 'production' : 'development',
@@ -16,12 +18,19 @@ module.exports = {
         exclude: /node_modules/,
         resolve: {
           extensions: ['.ts', '.tsx', '.js', '.json'],
+          alias: {
+            'domain': path.resolve(process.cwd(), './src/domain'),
+          }
         },
         use: 'ts-loader',
       },
       {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          "postcss-loader"
+        ],
       },
     ]
   },
@@ -35,4 +44,7 @@ module.exports = {
   optimization: {
     minimize: prod
   },
+  resolve: {
+    plugins: [new TsconfigPathsPlugin({})]
+  }
 };

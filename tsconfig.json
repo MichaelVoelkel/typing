@@ -4,6 +4,7 @@
     "jsx": "react",
     "module": "esnext",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "lib": [
       "dom",
       "esnext"
@@ -11,7 +12,14 @@
     "strict": true,
     "sourceMap": true,
     "target": "esnext",
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "typeRoots": [
+      "src/@types",
+      "node_modules/@types"
+    ]
   },
   "exclude": [
     "node_modules"
