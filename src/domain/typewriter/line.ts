@@ -1,3 +1,4 @@
+import shuffleArray from "domain/arrayHelpers/shuffleArray";
 import Config from "domain/config/config";
 import EventEmitter from "./event_emitter";
 import Word from "./word";
@@ -8,12 +9,23 @@ export default class Line {
     private eventEmitter?: EventEmitter;
     private cumulativeStrokeTimesInWordInMs: number = 0;
     private errorsInWordSoFar: boolean = false;
+    private words: Word[] = [];
 
     constructor(
         private config: Config,
-        private words: Word[],
+        private originalWords: Word[],
         private currentWordIdx: number,
         private currentPositionInWordIdx: number) {
+        
+        this.originalWords = originalWords;
+
+        this.addWordPermutationToWords();
+    }
+
+    private addWordPermutationToWords(): void {
+        shuffleArray(this.originalWords);
+
+        this.words = this.words.concat(this.originalWords);
     }
 
     getLineStringAndCursorPosition(): [lineString: string, cursorPosition: number] {
@@ -78,6 +90,15 @@ export default class Line {
             ++this.currentWordIdx;
             this.cumulativeStrokeTimesInWordInMs = 0;
             this.errorsInWordSoFar = false;
+
+            this.addWordsIfNeeded();
+        }
+    }
+
+    private addWordsIfNeeded(): void {
+        const leftWordsWhenToAddNewWords = 20;
+        if(this.currentWordIdx > this.words.length - leftWordsWhenToAddNewWords) {
+            this.addWordPermutationToWords();
         }
     }
 }

@@ -10,6 +10,7 @@ module.exports = {
   entry: './src/frontend/index.tsx',
   output: {
     path: __dirname + '/dist/',
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -43,6 +44,9 @@ module.exports = {
   ],
   optimization: {
     minimize: prod
+  },
+  devServer: {
+    historyApiFallback: true,
   },
   resolve: {
     plugins: [new TsconfigPathsPlugin({})]

@@ -5,7 +5,8 @@ import Word from "domain/typewriter/word";
 import { Signal } from "typed-signals";
 
 import Config from "domain/config/config";
-import { english1kWordsDictionary } from "domain/dictionary/dictionaries";
+import { allDictionaries } from "domain/dictionary/dictionaries";
+import Dictionary from "domain/dictionary/dictionary";
 
 function currentTimeInMs(): number {
     return Date.now();
@@ -17,8 +18,10 @@ export default class TypingController {
     private sessionStatistics: DetailedSessionStatistics;
     private lastKeyStrokeTimeInMs: number;
 
-    constructor() {
-        this.line = new Line(new Config(), english1kWordsDictionary.getWords(), 0, 0);
+    constructor(dictID: string) {
+        const selectedDict = allDictionaries.find((dict: Dictionary) => dict.getID() == dictID);
+
+        this.line = new Line(new Config(), selectedDict!.getWords(), 0, 0);
         this.sessionStatistics = new DetailedSessionStatistics();
         this.statisticsCollector = new StatisticsCollector(this.sessionStatistics);
         this.line.setEventEmitter(this.statisticsCollector.getTypeWriterEventEmitter(this.line));

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { stringify } from 'ts-jest';
 import TypingController from '../app/typing_controller'
 import parse from 'html-react-parser'
 import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/session/detailed_session_statistics';
+import { useParams } from 'react-router-dom';
 
-export default function App() {
-    const [typingController, setTypingController] = useState<TypingController>(new TypingController());
+export default function Typing() {
+    let {dict} = useParams();
+    const [typingController, setTypingController] = useState<TypingController>(new TypingController(dict!));
     const [lineText, setLineText] = useState<JSX.Element>();
 
     const fixLastWhitespace = (text: string) => {
