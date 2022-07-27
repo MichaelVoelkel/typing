@@ -1,5 +1,3 @@
-import { stringify } from "ts-jest";
-
 interface Stats {
     rightStrokes: number;
     wrongStrokes: number;
@@ -18,7 +16,7 @@ export interface WordRow extends Stats {
 
 export type WordTable = WordRow[];
 
-export default class SessionStatistics {
+export default class DetailedSessionStatistics {
     private rightKeyStrokes: number = 0;
     private wrongKeyStrokes: number = 0;
     private rightKeyStrokesByCharacter: Record<string, number> = {};
@@ -32,12 +30,12 @@ export default class SessionStatistics {
     private cumulativeWordTime: number = 0;
 
     addRightWord(word: string, timeInMs: number): void {
-        this.rightWordsByWord[word] = this.rightWordsByWord[word] || 1;
+        this.rightWordsByWord[word] = this.rightWordsByWord[word] + 1 || 1;
         this.addCommonWordStats(word, timeInMs);
     }
 
     addWrongWord(word:string, timeInMs: number): void {
-        this.wrongWordsByWord[word] = this.wrongWordsByWord[word] || 1;
+        this.wrongWordsByWord[word] = this.wrongWordsByWord[word] + 1 || 1;
         this.addCommonWordStats(word, timeInMs);
     }
 
@@ -139,5 +137,39 @@ export default class SessionStatistics {
     getTotalCPM(): number {
         const msPerMinute = 60 * 1000;
         return (this.rightKeyStrokes + this.wrongKeyStrokes) / this.cumulativeKeyStrokeTime * msPerMinute;
+    }
+
+    getRightWords(): number {
+        return Object.values(this.rightWordsByWord).reduce((sum: number, value: number) => sum + value, 0);
+    }
+
+    getWrongWords(): number {
+        return Object.values(this.wrongWordsByWord).reduce((sum: number, value: number) => sum + value, 0);
+    }
+
+    getTotalWordPrecision(): number {
+        const rightWords = this.getRightWords();
+        return rightWords / (rightWords + this.getWrongWords());
+    }
+
+    getRightCharacters(): number {
+        return Object.values(this.rightKeyStrokesByCharacter).reduce((sum: number, value: number) => sum + value, 0);
+    }
+
+    getWrongCharacters(): number {
+        return Object.values(this.wrongKeyStrokesByCharacter).reduce((sum: number, value: number) => sum + value, 0);
+    }
+
+    getTotalCharacterPrecision(): number {
+        const rightCharacters: number = this.getRightCharacters();
+        return rightCharacters / (rightCharacters + this.getWrongCharacters());
+    }
+
+    getTotalTypedWords(): number {
+        return this.getRightWords() + this.getWrongWords();
+    }
+
+    getTotalTypedCharacters(): number {
+        return this.getRightCharacters() + this.getWrongCharacters();
     }
 }

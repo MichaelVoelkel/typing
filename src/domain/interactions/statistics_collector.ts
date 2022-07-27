@@ -1,6 +1,6 @@
 import { createEventBus, slot } from "ts-event-bus";
 import { stringify } from "ts-jest";
-import SessionStatistics from "../statistics/session_statistics";
+import DetailedSessionStatistics from "../session/detailed_session_statistics";
 import EventEmitter from "../typewriter/event_emitter";
 import Line from "../typewriter/line";
 
@@ -14,7 +14,7 @@ const Events = {
 export class StatisticsCollector {
     private eventBus: typeof Events;
 
-    constructor(private sessionStatistics: SessionStatistics) {
+    constructor(private sessionStatistics: DetailedSessionStatistics) {
         this.eventBus = createEventBus({events: Events});
         this.handleRightToken();
         this.handleWrongToken();

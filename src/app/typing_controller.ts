@@ -1,12 +1,11 @@
 import { StatisticsCollector } from "domain/interactions/statistics_collector";
-import SessionStatistics, { KeyStrokeTable, WordTable } from "domain/statistics/session_statistics";
+import DetailedSessionStatistics, { KeyStrokeTable, WordTable } from "domain/session/detailed_session_statistics";
 import Line from "domain/typewriter/line";
 import Word from "domain/typewriter/word";
 import { Signal } from "typed-signals";
-import shuffleArray from "app/arrayHelpers/shuffleArray";
 
-import * as wordlist from '../data/english-words-1k.json';
 import Config from "domain/config/config";
+import { english1kWordsDictionary } from "domain/dictionary/dictionaries";
 
 function currentTimeInMs(): number {
     return Date.now();
@@ -15,18 +14,12 @@ function currentTimeInMs(): number {
 export default class TypingController {
     private line: Line;
     private statisticsCollector: StatisticsCollector;
-    private sessionStatistics: SessionStatistics;
+    private sessionStatistics: DetailedSessionStatistics;
     private lastKeyStrokeTimeInMs: number;
 
     constructor() {
-        let commonEnglishWords = Object.values(wordlist);
-
-        let words: Word[] = [];
-        commonEnglishWords.forEach((word: string) => words.push(new Word(word)));
-        shuffleArray(words);
-
-        this.line = new Line(new Config(), words, 0, 0);
-        this.sessionStatistics = new SessionStatistics();
+        this.line = new Line(new Config(), english1kWordsDictionary.getWords(), 0, 0);
+        this.sessionStatistics = new DetailedSessionStatistics();
         this.statisticsCollector = new StatisticsCollector(this.sessionStatistics);
         this.line.setEventEmitter(this.statisticsCollector.getTypeWriterEventEmitter(this.line));
 

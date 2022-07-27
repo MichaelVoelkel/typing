@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { stringify } from 'ts-jest';
 import TypingController from '../app/typing_controller'
 import parse from 'html-react-parser'
-import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/statistics/session_statistics';
+import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/session/detailed_session_statistics';
 
 export default function App() {
     const [typingController, setTypingController] = useState<TypingController>(new TypingController());
