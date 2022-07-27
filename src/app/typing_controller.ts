@@ -5,7 +5,8 @@ import Word from "domain/typewriter/word";
 import { Signal } from "typed-signals";
 import shuffleArray from "app/arrayHelpers/shuffleArray";
 
-import * as wordlist from '../data/english-words-10.json';
+import * as wordlist from '../data/english-words-1k.json';
+import Config from "domain/config/config";
 
 function currentTimeInMs(): number {
     return Date.now();
@@ -24,7 +25,7 @@ export default class TypingController {
         commonEnglishWords.forEach((word: string) => words.push(new Word(word)));
         shuffleArray(words);
 
-        this.line = new Line(words, 0, 0);
+        this.line = new Line(new Config(), words, 0, 0);
         this.sessionStatistics = new SessionStatistics();
         this.statisticsCollector = new StatisticsCollector(this.sessionStatistics);
         this.line.setEventEmitter(this.statisticsCollector.getTypeWriterEventEmitter(this.line));
@@ -61,6 +62,14 @@ export default class TypingController {
 
     getWordStatistics() : WordTable {
         return this.sessionStatistics.getWordTable();
+    }
+
+    getTotalCPM(): number {
+        return this.sessionStatistics.getTotalCPM();
+    }
+
+    getTotalWPM(): number {
+        return this.sessionStatistics.getTotalWPM();
     }
 
     lineChanged = new Signal<() => void>();

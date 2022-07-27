@@ -30,7 +30,7 @@ export class StatisticsCollector {
 
     private handleWrongToken(): void {
         this.eventBus.wrongToken.on((obj: {expected: string, actual: string, timeInMs: number}) => {
-            this.sessionStatistics.addWrongKeyStroke(obj.expected, obj.timeInMs);
+            this.sessionStatistics.addWrongKeyStroke(obj.actual, obj.timeInMs);
         });
     }
 

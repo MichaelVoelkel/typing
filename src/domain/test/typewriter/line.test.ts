@@ -1,3 +1,4 @@
+import Config from "domain/config/config";
 import EventEmitter from "domain/typewriter/event_emitter"
 import Line from "domain/typewriter/line";
 import Word from "domain/typewriter/word";
@@ -8,7 +9,7 @@ const wordsAsString = "abc defg hijkl ";
 
 function init(): [EventEmitterMock, Line] {
     const eventEmitter = new EventEmitterMock();
-    const line = new Line(words, 0, 0);
+    const line = new Line(new Config, words, 0, 0);
     line.setEventEmitter(eventEmitter);
 
     return [eventEmitter, line];
@@ -120,7 +121,7 @@ describe('Test line string and position', () => {
 
     test('Test multiple words', () => {
         const eventEmitter = new EventEmitterMock();
-        const line = new Line([new Word("a"), new Word("abilities"), new Word("ability"), new Word("able")], 0, 0);
+        const line = new Line(new Config, [new Word("a"), new Word("abilities"), new Word("ability"), new Word("able")], 0, 0);
         line.setEventEmitter(eventEmitter);
 
         const stroken = "a abilities ability";

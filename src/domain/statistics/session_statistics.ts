@@ -25,18 +25,27 @@ export default class SessionStatistics {
     private wrongKeyStrokesByCharacter: Record<string, number> = {};
     private rightKeyStrokeTimesByCharacter: Record<string, number[]> = {};
     private rightWordsByWord: Record<string, number> = {};
+    private completedWords: number = 0;
     private wrongWordsByWord: Record<string, number> = {};
-    private rightWordTimesByWord: Record<string, number[]> = {};
+    private wordTimesByWord: Record<string, number[]> = {};
+    private cumulativeKeyStrokeTime: number = 0;
+    private cumulativeWordTime: number = 0;
 
     addRightWord(word: string, timeInMs: number): void {
         this.rightWordsByWord[word] = this.rightWordsByWord[word] || 1;
-
-        this.rightWordTimesByWord[word] = this.rightWordTimesByWord[word] || [];
-        this.rightWordTimesByWord[word].push(timeInMs);
+        this.addCommonWordStats(word, timeInMs);
     }
 
-    addWrongWord(word:string, _timeInMs: number): void {
+    addWrongWord(word:string, timeInMs: number): void {
         this.wrongWordsByWord[word] = this.wrongWordsByWord[word] || 1;
+        this.addCommonWordStats(word, timeInMs);
+    }
+
+    private addCommonWordStats(word: string, timeInMs: number): void {
+        this.wordTimesByWord[word] = this.wordTimesByWord[word] || [];
+        this.wordTimesByWord[word].push(timeInMs);
+        this.cumulativeWordTime += timeInMs;
+        ++this.completedWords;
     }
 
     addRightKeyStroke(character: string, timeInMs: number): void {
@@ -44,11 +53,14 @@ export default class SessionStatistics {
         this.rightKeyStrokesByCharacter[character] = this.rightKeyStrokesByCharacter[character] + 1 || 1;
         this.rightKeyStrokeTimesByCharacter[character] = this.rightKeyStrokeTimesByCharacter[character] || [];
         this.rightKeyStrokeTimesByCharacter[character].push(timeInMs);
+
+        this.cumulativeKeyStrokeTime += timeInMs;
     }
 
-    addWrongKeyStroke(character: string, _timeInMs: number): void {
+    addWrongKeyStroke(character: string, timeInMs: number): void {
         ++this.wrongKeyStrokes;
-        this.wrongKeyStrokesByCharacter[character] = this.wrongKeyStrokesByCharacter[character]+ 1 || 1;
+        this.wrongKeyStrokesByCharacter[character] = this.wrongKeyStrokesByCharacter[character] + 1 || 1;
+        this.cumulativeKeyStrokeTime += timeInMs;
     }
 
     getRightKeyStrokes(): number {
@@ -90,7 +102,14 @@ export default class SessionStatistics {
         });
 
         table.sort((line1: T, line2: T): number => {
-            return line1.precision - line2.precision;
+            const normalizer = 500000;
+            let order = (line1.precision - line2.precision) * normalizer;
+
+            if(!isNaN(line1.averageTime) && !isNaN(line2.averageTime)) {
+                order += line2.averageTime - line1.averageTime;   
+            }
+
+            return order;
         });
 
         return table;
@@ -108,7 +127,17 @@ export default class SessionStatistics {
         return this.getTable<WordRow>(
             this.rightWordsByWord,
             this.wrongWordsByWord,
-            this.rightWordTimesByWord,
+            this.wordTimesByWord,
             "word");
+    }
+
+    getTotalWPM(): number {
+        const msPerMinute = 60 * 1000;
+        return this.completedWords / this.cumulativeWordTime * msPerMinute;
+    }
+
+    getTotalCPM(): number {
+        const msPerMinute = 60 * 1000;
+        return (this.rightKeyStrokes + this.wrongKeyStrokes) / this.cumulativeKeyStrokeTime * msPerMinute;
     }
 }

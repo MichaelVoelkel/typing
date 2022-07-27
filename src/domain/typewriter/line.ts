@@ -1,3 +1,4 @@
+import Config from "domain/config/config";
 import EventEmitter from "./event_emitter";
 import Word from "./word";
 
@@ -9,6 +10,7 @@ export default class Line {
     private errorsInWordSoFar: boolean = false;
 
     constructor(
+        private config: Config,
         private words: Word[],
         private currentWordIdx: number,
         private currentPositionInWordIdx: number) {
@@ -64,12 +66,12 @@ export default class Line {
 
         // position at end of word means space is needed
         if(this.currentPositionInWordIdx > this.words[this.currentWordIdx].length()) {
-            
+            const cappedStrokeTime = Math.min(this.cumulativeStrokeTimesInWordInMs, this.config.wordTimeInMsCap());
 
             if(this.errorsInWordSoFar) {
-                this.eventEmitter?.wrongWord(this.words[this.currentWordIdx].string(), this.cumulativeStrokeTimesInWordInMs);
+                this.eventEmitter?.wrongWord(this.words[this.currentWordIdx].string(), cappedStrokeTime);
             } else {
-                this.eventEmitter?.rightWord(this.words[this.currentWordIdx].string(), this.cumulativeStrokeTimesInWordInMs);
+                this.eventEmitter?.rightWord(this.words[this.currentWordIdx].string(), cappedStrokeTime);
             }
 
             this.currentPositionInWordIdx = 0;
