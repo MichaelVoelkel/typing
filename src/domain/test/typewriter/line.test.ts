@@ -7,9 +7,15 @@ const strokeTime = 100;
 const words = [new Word("abc"), new Word("defg"), new Word("hijkl")];
 const wordsAsString = "abc defg hijkl ";
 
+function createConfig(): Config {
+    const config = new Config;
+    config.randomizeWords = false;
+    return config;
+}
+
 function init(): [EventEmitterMock, Line] {
     const eventEmitter = new EventEmitterMock();
-    const line = new Line(new Config, words, 0, 0);
+    const line = new Line(createConfig(), words, 0, 0);
     line.setEventEmitter(eventEmitter);
 
     return [eventEmitter, line];
@@ -100,7 +106,7 @@ describe('Test line string and position', () => {
         line.handleKeyStroke("e", strokeTime);
 
         const [lineString, position] = line.getLineStringAndCursorPosition();
-        expect(lineString).toBe(wordsAsString);
+        expect(lineString).toMatch(new RegExp(`^${wordsAsString}`));
         expect(position).toBe(6);
     });
 
@@ -115,19 +121,20 @@ describe('Test line string and position', () => {
         line.handleKeyStroke("Z", strokeTime);
 
         const [lineString, position] = line.getLineStringAndCursorPosition();
-        expect(lineString).toBe(wordsAsString);
+        expect(lineString).toMatch(new RegExp(`^${wordsAsString}`));
         expect(position).toBe(5);
     });
 
     test('Test multiple words', () => {
         const eventEmitter = new EventEmitterMock();
-        const line = new Line(new Config, [new Word("a"), new Word("abilities"), new Word("ability"), new Word("able")], 0, 0);
+        const line = new Line(createConfig(), [new Word("a"), new Word("abilities"), new Word("ability"), new Word("able")], 0, 0);
         line.setEventEmitter(eventEmitter);
 
         const stroken = "a abilities ability";
         multiStroke(line, stroken);
 
         const [_lineString, position] = line.getLineStringAndCursorPosition();
+        console.log(_lineString);
         expect(position).toBe(stroken.length);
     });
 });

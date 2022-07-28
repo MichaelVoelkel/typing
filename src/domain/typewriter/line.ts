@@ -23,7 +23,9 @@ export default class Line {
     }
 
     private addWordPermutationToWords(): void {
-        shuffleArray(this.originalWords);
+        if(this.config.randomizeWords) {
+            shuffleArray(this.originalWords);
+        }
 
         this.words = this.words.concat(this.originalWords);
     }
@@ -78,7 +80,7 @@ export default class Line {
 
         // position at end of word means space is needed
         if(this.currentPositionInWordIdx > this.words[this.currentWordIdx].length()) {
-            const cappedStrokeTime = Math.min(this.cumulativeStrokeTimesInWordInMs, this.config.wordTimeInMsCap());
+            const cappedStrokeTime = Math.min(this.cumulativeStrokeTimesInWordInMs, this.config.getWordTimeInMsCap());
 
             if(this.errorsInWordSoFar) {
                 this.eventEmitter?.wrongWord(this.words[this.currentWordIdx].string(), cappedStrokeTime);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import TypingController from '../app/typing_controller'
 import parse from 'html-react-parser'
 import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/session/detailed_session_statistics';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 export default function Typing() {
     let {dict} = useParams();
@@ -119,6 +119,7 @@ export default function Typing() {
                             <tr><td className="p-2">Wrong strokes:</td><td className="p-2 text-right">{strokes[1]}</td></tr>
                             <tr><td className="p-2">Dictionary words:</td><td className="p-2 text-right">{wordTable.length}</td></tr>
                             <tr><td className="p-2">WPM/CPM:</td><td className="p-2 text-right">{wpm} / {cpm}</td></tr>
+                            <tr><td className="p-2 pt-8 text-zinc-100" colSpan={2}><Link to="/">Finish session</Link></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -147,14 +148,6 @@ export default function Typing() {
                     </table>
                 </div>
             </div>
-
-            
-            
-            
-            
-            
-            
-            
         </div>)
         :
             <div>Loading</div>
