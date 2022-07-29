@@ -5,9 +5,6 @@ export default class Dictionary {
     private words: Word[] = [];
 
     constructor(private id: string, private label: string, wordStrings: string[]) {
-
-        console.log(JSON.stringify(wordStrings));
-
         let commonEnglishWords = Object.values(wordStrings);
 
         commonEnglishWords.forEach((word: string) => this.words.push(new Word(word)));

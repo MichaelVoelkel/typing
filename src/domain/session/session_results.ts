@@ -8,6 +8,10 @@ export default class SessionResults {
         this.results.push(result);
     }
 
+    getSessionResults(): SessionResult[] {
+        return this.results;
+    }
+
     toObject(): Record<string, any>[] {
         const results: Record<string, any>[] = [];
 

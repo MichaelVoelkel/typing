@@ -1,12 +1,13 @@
 import { StatisticsCollector } from "domain/interactions/statistics_collector";
 import DetailedSessionStatistics, { KeyStrokeTable, WordTable } from "domain/session/detailed_session_statistics";
 import Line from "domain/typewriter/line";
-import Word from "domain/typewriter/word";
 import { Signal } from "typed-signals";
 
 import Config from "domain/config/config";
 import { allDictionaries } from "domain/dictionary/dictionaries";
 import Dictionary from "domain/dictionary/dictionary";
+import SessionResult from "domain/session/session_result";
+import RoughSessionStatistics from "domain/session/rough_session_statistics";
 
 function currentTimeInMs(): number {
     return Date.now();
@@ -18,7 +19,7 @@ export default class TypingController {
     private sessionStatistics: DetailedSessionStatistics;
     private lastKeyStrokeTimeInMs: number;
 
-    constructor(dictID: string) {
+    constructor(private dictID: string) {
         const selectedDict = allDictionaries.find((dict: Dictionary) => dict.getID() == dictID);
 
         this.line = new Line(new Config(), selectedDict!.getWords(), 0, 0);
@@ -38,6 +39,14 @@ export default class TypingController {
         this.lastKeyStrokeTimeInMs = nextTimeInMs;
 
         this.lineChanged.emit();
+    }
+
+    finishSession(): void {
+        this.sessionFinished.emit(new SessionResult(
+            this.dictID,
+            new Date(),
+            RoughSessionStatistics.createFromDetailedSessionStatistics(this.sessionStatistics)
+        ));
     }
 
     getLineStringAndPosition(): [string, number] {
@@ -69,4 +78,5 @@ export default class TypingController {
     }
 
     lineChanged = new Signal<() => void>();
+    sessionFinished = new Signal<(sessionResult: SessionResult) => void>();
 }

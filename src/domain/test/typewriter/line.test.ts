@@ -134,7 +134,7 @@ describe('Test line string and position', () => {
         multiStroke(line, stroken);
 
         const [_lineString, position] = line.getLineStringAndCursorPosition();
-        console.log(_lineString);
+        
         expect(position).toBe(stroken.length);
     });
 });

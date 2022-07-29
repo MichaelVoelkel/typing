@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react'
-import TypingController from '../app/typing_controller'
+import MainController from '../app/main_controller'
 import parse from 'html-react-parser'
 import { KeyStrokeRow, KeyStrokeTable, WordRow, WordTable } from 'domain/session/detailed_session_statistics';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
-export default function Typing() {
-    let {dict} = useParams();
-    const [typingController, setTypingController] = useState<TypingController>(new TypingController(dict!));
+export default function Typing(props: any) {
+    const {dict} = useParams();
+    const {mainController} = props;
+
+    const [typingController, setTypingController] = useState(mainController.startSession(dict!));
+    
     const [lineText, setLineText] = useState<JSX.Element>();
+
+    const navigate = useNavigate();
 
     const fixLastWhitespace = (text: string) => {
         if(text[text.length - 1] == ' ') {
@@ -30,9 +35,13 @@ export default function Typing() {
         )
     };
 
+    let [initialized, setInitialized] = useState(false);
+
     useEffect(() => {
+        setInitialized(true);
         let [lineString, position] = typingController?.getLineStringAndPosition();
         updateLineTextObject(lineString, position);
+    }, [setInitialized]);
         
         typingController?.lineChanged.connect(() => {
             const [newLineString, newPosition] = typingController?.getLineStringAndPosition();
@@ -43,7 +52,7 @@ export default function Typing() {
             setCpm(Math.round(typingController.getTotalCPM()));
             setWpm(Math.round(typingController.getTotalWPM()));
         });
-    }, [setTypingController]);
+    //}, [setTypingController]);
 
     const [keyBlocked, setKeyBlocked] = useState<Record<string,boolean>>({});
     const updateBlockedKey = (pressedChar: string, blocked: boolean) => {
@@ -119,7 +128,10 @@ export default function Typing() {
                             <tr><td className="p-2">Wrong strokes:</td><td className="p-2 text-right">{strokes[1]}</td></tr>
                             <tr><td className="p-2">Dictionary words:</td><td className="p-2 text-right">{wordTable.length}</td></tr>
                             <tr><td className="p-2">WPM/CPM:</td><td className="p-2 text-right">{wpm} / {cpm}</td></tr>
-                            <tr><td className="p-2 pt-8 text-zinc-100" colSpan={2}><Link to="/">Finish session</Link></td></tr>
+                            <tr><td className="p-2 pt-8 text-zinc-100" colSpan={2}><a href="#" onClick={_ => {
+                                typingController.finishSession();
+                                navigate('/');
+                            }}>Finish session...</a></td></tr>
                         </tbody>
                     </table>
                 </div>
